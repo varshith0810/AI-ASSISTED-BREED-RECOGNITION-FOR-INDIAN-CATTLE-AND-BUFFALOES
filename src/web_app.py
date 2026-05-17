@@ -1,10 +1,9 @@
 """Compatibility entrypoint for Render/uvicorn startup.
 
-Use either:
-- uvicorn backend.app:app
-- uvicorn src.web_app:app
+Primary target should be `src.app:app`.
+This module re-exports from `src.app` directly to avoid an extra import hop.
 """
 
-from backend.app import app
+from src.app import app
 
 __all__ = ["app"]
