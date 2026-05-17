@@ -206,6 +206,28 @@ def render_result(top, conf, animal_id, gps_coordinates, rows):
     """
     return page_template(content, active="home")
 
+def render_result(top, conf, animal_id, gps_coordinates, rows):
+    content = f"""
+    <div class='auth-wrap' style='max-width:860px'>
+      <div class='card'>
+        <div class='badge'>Prediction Complete</div>
+        <h2 class='headline' style='font-size:30px'>Breed Recognition Result</h2>
+        <div class='result'>
+          <p><b>Predicted Breed:</b> {top}</p>
+          <p><b>Confidence:</b> {conf:.2f}%</p>
+          <p><b>Animal ID:</b> {animal_id or 'N/A'}</p>
+          <p><b>GPS Coordinates:</b> {gps_coordinates or 'N/A'}</p>
+          <h4>Top-5 Scores</h4><ul>{rows}</ul>
+        </div>
+        <div class='grid' style='margin-top:14px'>
+          <a href='/' class='ghost-link' style='display:flex;align-items:center;justify-content:center'>Try Another Image</a>
+          <a href='/signin' class='ghost-link' style='display:flex;align-items:center;justify-content:center'>Go to Sign In</a>
+        </div>
+      </div>
+    </div>
+    """
+    return page_template(content, active="home")
+
 def _load_from_bundle(bundle_path: Path):
     if not bundle_path.exists():
         raise FileNotFoundError(f"Bundle not found: {bundle_path}")
@@ -301,10 +323,14 @@ def debug_bundle():
 @app.get("/", response_class=HTMLResponse)
 def home():
     return render_home()
+
 @app.get("/signin", response_class=HTMLResponse)
 def signin_page():
     return render_signin()
 
+@app.get("/signin", response_class=HTMLResponse)
+def signin_page():
+    return render_signin()
 
 @app.post("/signin")
 async def signin(identity: str = Form(...), password: str = Form(...)):
@@ -317,6 +343,11 @@ async def signin(identity: str = Form(...), password: str = Form(...)):
 def create_account_page():
     return render_create_account()
 
+@app.post("/create-account", response_class=HTMLResponse)
+async def create_account(email: str = Form(...), username: str = Form(...), password: str = Form(...)):
+    if not email.strip() or not username.strip() or not password.strip():
+        raise HTTPException(status_code=400, detail="Email, username, and password are required.")
+    return render_signin(message=f"Account created for {username}. Please sign in.")
 
 @app.post("/create-account", response_class=HTMLResponse)
 async def create_account(email: str = Form(...), username: str = Form(...), password: str = Form(...)):
